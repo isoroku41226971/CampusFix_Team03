@@ -1,46 +1,56 @@
 <%- include('../partials/header') %>
 
 <h1>送出報修</h1>
-<p class="lead">請描述你遇到的校園問題，送出後會拿到一個報修編號，可以用來查詢處理進度。</p>
+<p class="lead">請描述你遇到的校園問題，送出後會拿到一個報修編號，可以用來查詢處理進度。所有欄位都必填。</p>
 
-<form class="report-form" method="post" action="/reports" novalidate>
+<% if (Object.keys(errors).length > 0) { %>
+  <div class="notice notice-error" role="alert">還有欄位沒有填好，請依照下方紅字修正後再送出。</div>
+<% } %>
+
+<form id="report-form" class="report-form" method="post" action="/reports" novalidate>
   <div class="field">
     <label for="title">標題</label>
-    <input type="text" id="title" name="title" maxlength="100"
-           placeholder="例如：投影機無法開機" value="<%= values.title || '' %>">
-    <% if (errors.title) { %><p class="field-error"><%= errors.title %></p><% } %>
+    <input type="text" id="title" name="title" maxlength="100" required
+           placeholder="例如：投影機無法開機" value="<%= values.title || '' %>"
+           aria-describedby="title-error" <%= errors.title ? 'aria-invalid=true' : '' %>>
+    <p class="field-error" id="title-error" <%= errors.title ? '' : 'hidden' %>><%= errors.title || '' %></p>
   </div>
 
   <div class="field">
     <label for="location">地點</label>
-    <select id="location" name="location">
+    <select id="location" name="location" required
+            aria-describedby="location-error" <%= errors.location ? 'aria-invalid=true' : '' %>>
       <option value="">請選擇地點</option>
       <% locations.forEach(function (loc) { %>
         <option value="<%= loc %>" <%= values.location === loc ? 'selected' : '' %>><%= loc %></option>
       <% }) %>
     </select>
-    <% if (errors.location) { %><p class="field-error"><%= errors.location %></p><% } %>
+    <p class="field-error" id="location-error" <%= errors.location ? '' : 'hidden' %>><%= errors.location || '' %></p>
   </div>
 
   <div class="field">
     <label for="category">類別</label>
-    <select id="category" name="category">
+    <select id="category" name="category" required
+            aria-describedby="category-error" <%= errors.category ? 'aria-invalid=true' : '' %>>
       <option value="">請選擇類別</option>
       <% categories.forEach(function (cat) { %>
         <option value="<%= cat %>" <%= values.category === cat ? 'selected' : '' %>><%= cat %></option>
       <% }) %>
     </select>
-    <% if (errors.category) { %><p class="field-error"><%= errors.category %></p><% } %>
+    <p class="field-error" id="category-error" <%= errors.category ? '' : 'hidden' %>><%= errors.category || '' %></p>
   </div>
 
   <div class="field">
     <label for="description">描述</label>
-    <textarea id="description" name="description" rows="5" maxlength="1000"
-              placeholder="請寫下問題的情況，例如教室號碼、發生時間"><%= values.description || '' %></textarea>
-    <% if (errors.description) { %><p class="field-error"><%= errors.description %></p><% } %>
+    <textarea id="description" name="description" rows="5" maxlength="1000" required
+              placeholder="請寫下問題的情況，例如教室號碼、發生時間"
+              aria-describedby="description-error" <%= errors.description ? 'aria-invalid=true' : '' %>><%= values.description || '' %></textarea>
+    <p class="field-error" id="description-error" <%= errors.description ? '' : 'hidden' %>><%= errors.description || '' %></p>
   </div>
 
   <button type="submit" class="btn">送出報修</button>
 </form>
+
+<script src="/js/report-form.js"></script>
 
 <%- include('../partials/footer') %>
