@@ -3,6 +3,7 @@
 const path = require('path');
 const express = require('express');
 const { db } = require('./db');
+const { LOCATIONS, CATEGORIES } = require('./constants');
 
 const app = express();
 
@@ -14,6 +15,18 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.get('/', (req, res) => {
   res.render('index', { title: 'CampusFix' });
+});
+
+// Report form (WD-12). The form posts to /reports, which saves the report (WD-13).
+// `values` and `errors` let the same page be re-rendered after validation (WD-14).
+app.get('/reports/new', (req, res) => {
+  res.render('reports/new', {
+    title: '送出報修',
+    locations: LOCATIONS,
+    categories: CATEGORIES,
+    values: {},
+    errors: {},
+  });
 });
 
 // Quick check that the server and database are up.

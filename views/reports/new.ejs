@@ -1,0 +1,46 @@
+<%- include('../partials/header') %>
+
+<h1>送出報修</h1>
+<p class="lead">請描述你遇到的校園問題，送出後會拿到一個報修編號，可以用來查詢處理進度。</p>
+
+<form class="report-form" method="post" action="/reports" novalidate>
+  <div class="field">
+    <label for="title">標題</label>
+    <input type="text" id="title" name="title" maxlength="100"
+           placeholder="例如：投影機無法開機" value="<%= values.title || '' %>">
+    <% if (errors.title) { %><p class="field-error"><%= errors.title %></p><% } %>
+  </div>
+
+  <div class="field">
+    <label for="location">地點</label>
+    <select id="location" name="location">
+      <option value="">請選擇地點</option>
+      <% locations.forEach(function (loc) { %>
+        <option value="<%= loc %>" <%= values.location === loc ? 'selected' : '' %>><%= loc %></option>
+      <% }) %>
+    </select>
+    <% if (errors.location) { %><p class="field-error"><%= errors.location %></p><% } %>
+  </div>
+
+  <div class="field">
+    <label for="category">類別</label>
+    <select id="category" name="category">
+      <option value="">請選擇類別</option>
+      <% categories.forEach(function (cat) { %>
+        <option value="<%= cat %>" <%= values.category === cat ? 'selected' : '' %>><%= cat %></option>
+      <% }) %>
+    </select>
+    <% if (errors.category) { %><p class="field-error"><%= errors.category %></p><% } %>
+  </div>
+
+  <div class="field">
+    <label for="description">描述</label>
+    <textarea id="description" name="description" rows="5" maxlength="1000"
+              placeholder="請寫下問題的情況，例如教室號碼、發生時間"><%= values.description || '' %></textarea>
+    <% if (errors.description) { %><p class="field-error"><%= errors.description %></p><% } %>
+  </div>
+
+  <button type="submit" class="btn">送出報修</button>
+</form>
+
+<%- include('../partials/footer') %>
