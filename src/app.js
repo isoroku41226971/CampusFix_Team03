@@ -4,6 +4,7 @@ const path = require('path');
 const express = require('express');
 const { db } = require('./db');
 const { LOCATIONS, CATEGORIES } = require('./constants');
+const { createReport, getReportById } = require('./reports');
 
 const app = express();
 
@@ -27,6 +28,30 @@ app.get('/reports/new', (req, res) => {
     values: {},
     errors: {},
   });
+});
+
+// Save a submitted report (WD-13), then redirect so that refreshing the
+// confirmation page does not submit the form again.
+// Required-field validation is added in WD-14.
+app.post('/reports', (req, res) => {
+  const values = {
+    title: (req.body.title || '').trim(),
+    location: (req.body.location || '').trim(),
+    category: (req.body.category || '').trim(),
+    description: (req.body.description || '').trim(),
+  };
+  const report = createReport(values);
+  res.redirect(303, `/reports/${report.id}/submitted`);
+});
+
+// Confirmation page after a successful submission: shows the unique report
+// number and the current status (Submitted).
+app.get('/reports/:id/submitted', (req, res) => {
+  const report = getReportById(Number(req.params.id));
+  if (!report) {
+    return res.status(404).render('not-found', { title: '找不到頁面' });
+  }
+  res.render('reports/submitted', { title: '報修已送出', report });
 });
 
 // Quick check that the server and database are up.
