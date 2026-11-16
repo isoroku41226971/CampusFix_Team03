@@ -1,0 +1,20 @@
+<%- include('../partials/header') %>
+
+<div class="notice notice-success">
+  <h1>報修已送出</h1>
+  <p>請記下你的報修編號，之後可以用它查詢處理進度。</p>
+  <p class="report-no"><%= report.reportNo %></p>
+  <p>目前狀態：<span class="status status-<%= report.status.toLowerCase().replace(' ', '-') %>"><%= report.status %></span></p>
+</div>
+
+<dl class="report-summary">
+  <dt>標題</dt><dd><%= report.title %></dd>
+  <dt>地點</dt><dd><%= report.location %></dd>
+  <dt>類別</dt><dd><%= report.category %></dd>
+  <dt>描述</dt><dd class="multiline"><%= report.description %></dd>
+  <dt>送出時間</dt><dd><%= report.created_at %></dd>
+</dl>
+
+<p><a class="btn" href="/reports/new">再送出一筆報修</a></p>
+
+<%- include('../partials/footer') %>
