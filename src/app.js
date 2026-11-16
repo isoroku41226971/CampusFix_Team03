@@ -5,6 +5,7 @@ const express = require('express');
 const { db } = require('./db');
 const { LOCATIONS, CATEGORIES } = require('./constants');
 const { createReport, getReportById } = require('./reports');
+const { validateReport } = require('./validation');
 
 const app = express();
 
@@ -32,7 +33,8 @@ app.get('/reports/new', (req, res) => {
 
 // Save a submitted report (WD-13), then redirect so that refreshing the
 // confirmation page does not submit the form again.
-// Required-field validation is added in WD-14.
+// Invalid input (WD-14) re-renders the form with the entered values and a
+// message under each problem field; nothing is saved.
 app.post('/reports', (req, res) => {
   const values = {
     title: (req.body.title || '').trim(),
@@ -40,6 +42,16 @@ app.post('/reports', (req, res) => {
     category: (req.body.category || '').trim(),
     description: (req.body.description || '').trim(),
   };
+  const errors = validateReport(values);
+  if (Object.keys(errors).length > 0) {
+    return res.status(400).render('reports/new', {
+      title: '送出報修',
+      locations: LOCATIONS,
+      categories: CATEGORIES,
+      values,
+      errors,
+    });
+  }
   const report = createReport(values);
   res.redirect(303, `/reports/${report.id}/submitted`);
 });
