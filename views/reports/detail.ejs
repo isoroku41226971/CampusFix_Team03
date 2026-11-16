@@ -1,0 +1,17 @@
+<%- include('../partials/header') %>
+
+<h1>報修詳情</h1>
+<p class="report-no"><%= report.reportNo %></p>
+<dl class="report-summary">
+  <dt>標題</dt><dd><%= report.title %></dd>
+  <dt>地點</dt><dd><%= report.location %></dd>
+  <dt>類別</dt><dd><%= report.category %></dd>
+  <dt>描述</dt><dd class="multiline"><%= report.description %></dd>
+  <dt>目前狀態</dt><dd><span class="status status-<%= report.status.toLowerCase().replace(' ', '-') %>"><%= report.status %></span></dd>
+  <% if (report.status === 'Resolved') { %>
+    <dt>處理說明</dt><dd class="multiline"><%= report.resolution_note || '尚未提供處理說明' %></dd>
+  <% } %>
+</dl>
+<p><a href="/reports">回到報修列表</a></p>
+
+<%- include('../partials/footer') %>

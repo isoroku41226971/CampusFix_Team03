@@ -18,7 +18,7 @@
       <tbody>
         <% for (const report of reports) { %>
           <tr>
-            <th scope="row"><%= report.reportNo %></th>
+            <th scope="row"><a href="/reports/<%= report.id %>"><%= report.reportNo %></a></th>
             <td><%= report.title %></td>
             <td><%= report.location %></td>
             <td><span class="status status-<%= report.status.toLowerCase().replace(' ', '-') %>"><%= report.status %></span></td>

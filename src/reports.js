@@ -25,11 +25,11 @@ function getReportById(id) {
   return { ...row, reportNo: formatReportNo(row.id) };
 }
 
-// List the fields shown on the report list, newest first.
+// List report summaries with their IDs for detail links, newest first.
 function listReports() {
   return db.prepare('SELECT id, title, location, status FROM reports ORDER BY id DESC')
     .all()
-    .map(({ id, ...report }) => ({ ...report, reportNo: formatReportNo(id) }));
+    .map(report => ({ ...report, reportNo: formatReportNo(report.id) }));
 }
 
 module.exports = { formatReportNo, createReport, getReportById, listReports };

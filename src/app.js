@@ -70,6 +70,18 @@ app.get('/reports/:id/submitted', (req, res) => {
   res.render('reports/submitted', { title: '報修已送出', report });
 });
 
+// Report detail (WD-7 / WD-18). Keep this after the /reports/new route.
+app.get('/reports/:id', (req, res) => {
+  const id = Number(req.params.id);
+  const report = /^[1-9]\d*$/.test(req.params.id) && Number.isSafeInteger(id)
+    ? getReportById(id)
+    : undefined;
+  if (!report) {
+    return res.status(404).render('reports/not-found', { title: '查無此報修' });
+  }
+  res.render('reports/detail', { title: '報修詳情', report });
+});
+
 // Quick check that the server and database are up.
 app.get('/health', (req, res) => {
   const { count } = db.prepare('SELECT COUNT(*) AS count FROM reports').get();
