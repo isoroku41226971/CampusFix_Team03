@@ -4,7 +4,7 @@ const path = require('path');
 const express = require('express');
 const { db } = require('./db');
 const { LOCATIONS, CATEGORIES } = require('./constants');
-const { createReport, getReportById } = require('./reports');
+const { createReport, getReportById, listReports } = require('./reports');
 const { validateReport } = require('./validation');
 
 const app = express();
@@ -17,6 +17,10 @@ app.use(express.static(path.join(__dirname, '..', 'public')));
 
 app.get('/', (req, res) => {
   res.render('index', { title: 'CampusFix' });
+});
+
+app.get('/reports', (req, res) => {
+  res.render('reports/index', { title: '報修列表', reports: listReports() });
 });
 
 // Report form (WD-12). The form posts to /reports, which saves the report (WD-13).

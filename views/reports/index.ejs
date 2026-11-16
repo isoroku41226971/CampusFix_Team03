@@ -1,0 +1,32 @@
+<%- include('../partials/header') %>
+
+<h1>報修列表</h1>
+
+<% if (reports.length === 0) { %>
+  <p class="notice">目前沒有報修紀錄。</p>
+<% } else { %>
+  <div class="report-table-wrapper" role="region" aria-label="報修列表" tabindex="0">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th scope="col">報修編號</th>
+          <th scope="col">標題</th>
+          <th scope="col">地點</th>
+          <th scope="col">目前狀態</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (const report of reports) { %>
+          <tr>
+            <th scope="row"><%= report.reportNo %></th>
+            <td><%= report.title %></td>
+            <td><%= report.location %></td>
+            <td><span class="status status-<%= report.status.toLowerCase().replace(' ', '-') %>"><%= report.status %></span></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>
