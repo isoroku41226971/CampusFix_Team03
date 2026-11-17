@@ -20,7 +20,12 @@ app.get('/', (req, res) => {
 });
 
 app.get('/reports', (req, res) => {
-  res.render('reports/index', { title: '報修列表', reports: listReports() });
+  const keyword = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+  res.render('reports/index', {
+    title: '報修列表',
+    reports: listReports(keyword),
+    keyword,
+  });
 });
 
 // Report form (WD-12). The form posts to /reports, which saves the report (WD-13).

@@ -148,6 +148,53 @@
 
 ---
 
+## S7 關鍵字搜尋報修 (WD-28) — 開發 WD-31 / 測試 WD-32
+
+### 本次執行環境與測試資料
+
+| 欄位 | 實際值 |
+| --- | --- |
+| 日期 | 2026-11-17（Asia/Taipei），瀏覽器驗收約 22:23–22:25 |
+| 版本 | `feature/WD-31-keyword-search`，基於 `928a0144e8488955de82f191762157a299bbd764`，此 PR 的 S7 程式碼 |
+| 系統 / 執行環境 | Windows、Node.js 24.11.1、Express 5.3.0、EJS 7.0.2、better-sqlite3 13.2.0 |
+| 安裝 / 啟動 | `npm ci --ignore-scripts`；設定 `PORT=3188` 與獨立測試用 `DB_PATH` 後啟動 `node src/server.js` |
+| 瀏覽器 | Codex 內建瀏覽器；透過瀏覽器 UI 填表、點擊搜尋與查看結果 |
+| 執行者 | Codex（AI 代理實際操作與自動測試）；組員審查由 PR review 另行記錄 |
+| 測試資料 | 從空的獨立 SQLite 檔案開始，透過表單新增下列三筆虛構報修 |
+
+| 編號 | 標題 | 地點 | 類別 | 描述 |
+| --- | --- | --- | --- | --- |
+| CF-0001 | WiFi 無法連線 | 圖書館 | 網路 / Wi-Fi | 二樓斷線 |
+| CF-0002 | 網路問題 | 商學大樓 | 網路 / Wi-Fi | 教室 WIFI 經常斷線 |
+| CF-0003 | 投影機故障 | 商學大樓 | 教學設備 | 電源沒有反應 |
+
+### 實際瀏覽器驗收結果
+
+| 測試編號 / 驗收條件 | 步驟與輸入 | 預期結果 | 實際結果 | Pass / Fail | 執行者 / 日期 | 證據 |
+| --- | --- | --- | --- | --- | --- | --- |
+| S7-01 / AC1 標題或描述包含關鍵字 | 在 `/reports` 輸入 `wifi` 並按搜尋，點 CF-0002 | 標題符合的 CF-0001 與描述符合的 CF-0002 出現，CF-0003 不出現；詳情連結正常 | 列表依序顯示 CF-0002、CF-0001；點 CF-0002 開啟 `/reports/2`，描述顯示「教室 WIFI 經常斷線」 | Pass | Codex / 2026-11-17 | [搜尋結果](evidence/s7/search-lowercase.jpg)、[描述與詳情](evidence/s7/description-match.jpg) |
+| S7-02 / AC2 不分大小寫 | 依序輸入 `wifi`、`WiFi`、`WIFI` 並各按一次搜尋 | 三次的報修編號與順序相同 | 三次均依序顯示 CF-0002、CF-0001，搜尋欄保留各次輸入 | Pass | Codex / 2026-11-17 | [小寫](evidence/s7/search-lowercase.jpg)、[混合大小寫](evidence/s7/search-mixed-case.jpg)、[大寫](evidence/s7/search-uppercase.jpg) |
+| S7-03 / AC3 無符合報修 | 搜尋 `不存在的故障` | 顯示「查無符合的報修」，沒有報修資料列 | 顯示指定文字，搜尋欄保留輸入，沒有結果資料列 | Pass | Codex / 2026-11-17 | [查無結果](evidence/s7/no-results.jpg) |
+| S7-04 / AC4 表單搜尋入口 | 開啟 `/reports/new`，點「先搜尋看看」 | 進入可以輸入關鍵字的搜尋畫面 | 連結導向 `/reports#keyword`，搜尋欄取得焦點，可輸入搜尋 | Pass | Codex / 2026-11-17 | [表單入口](evidence/s7/form-link.jpg) |
+| S7-05 / AC5 搜尋說明 | 查看搜尋欄旁的說明 | 清楚說明搜尋標題與描述，且不分大小寫 | 搜尋欄下方顯示「搜尋報修的標題與描述，不分大小寫。」 | Pass | Codex / 2026-11-17 | [搜尋說明](evidence/s7/search-lowercase.jpg) |
+| S7-06 / 清除搜尋回歸 | 查無結果後點「清除搜尋」 | 返回所有報修 | 返回 `/reports`，搜尋欄清空，依序顯示 CF-0003、CF-0002、CF-0001 | Pass | Codex / 2026-11-17 | [全部報修](evidence/s7/all-reports.jpg) |
+
+### 自動測試結果
+
+執行 `node --test`（同 `npm test`），共 14 項、14 Pass、0 Fail，包含既有 S3 六項與 S7 八項。實際執行者為 Codex，日期 2026-11-17。
+
+- 五項 S7 驗收條件均以真實 HTTP 回應及 SQLite 資料驗證。
+- 驗證空關鍵字、空白、前後空白、重複與非字串查詢參數。
+- 驗證 `%`、`_`、反斜線及 SQL 文字按字面搜尋，沒有被當成萬用字元或 SQL 執行。
+- 驗證新送出的報修立即可搜尋，搜尋欄與報修標題中的 HTML 正確跳脫。
+- 既有詳情、狀態、結案說明、無效編號和表單路由回歸測試全部通過。
+
+可重現案例位於 `test/report-search.test.js`。搜尋採用 SQLite `lower`，大小寫折疊涵蓋 ASCII 英文字母（包含驗收要求的 wifi）；中文按原字比對。
+
+上述結果已實際執行。Story 的 Done 尚須依團隊流程取得成員審查、合併此 PR，並將程式碼與測試證據連到 Jira WD-28、WD-32。
+
+---
+
 ## 重測紀錄
 
 | 測試編號 | 失敗原因 / 相關 Bug | 修正的 PR | 重測結果 | 重測人員 / 日期 |
