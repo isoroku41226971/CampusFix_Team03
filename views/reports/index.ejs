@@ -1,6 +1,7 @@
 <%- include('../partials/header') %>
 
 <h1>報修列表</h1>
+<p id="filter-help" class="lead">可只用地點、只用關鍵字，或同時使用兩者；同時使用時，只顯示兩個條件都符合的報修。</p>
 
 <form class="report-search" action="/reports" method="get" role="search">
   <div class="field">
@@ -9,14 +10,26 @@
            aria-describedby="search-help" placeholder="例如：wifi、投影機">
     <p id="search-help" class="lead">搜尋報修的標題與描述，不分大小寫。</p>
   </div>
+  <div class="field">
+    <label for="location">地點篩選</label>
+    <select id="location" name="location" aria-describedby="filter-help">
+      <option value="">全部地點</option>
+      <% if (location && !locations.includes(location)) { %>
+        <option value="<%= location %>" selected>未知地點：<%= location %></option>
+      <% } %>
+      <% for (const item of locations) { %>
+        <option value="<%= item %>" <%= location === item ? 'selected' : '' %>><%= item %></option>
+      <% } %>
+    </select>
+  </div>
   <div class="search-actions">
     <button class="btn" type="submit">搜尋</button>
-    <% if (keyword) { %><a href="/reports">清除搜尋</a><% } %>
+    <% if (keyword || location) { %><a href="/reports">清除條件</a><% } %>
   </div>
 </form>
 
 <% if (reports.length === 0) { %>
-  <p class="notice"><%= keyword ? '查無符合的報修' : '目前沒有報修紀錄。' %></p>
+  <p class="notice"><%= keyword || location ? '查無符合的報修' : '目前沒有報修紀錄。' %></p>
 <% } else { %>
   <div class="report-table-wrapper" role="region" aria-label="報修列表" tabindex="0">
     <table class="report-table">

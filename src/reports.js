@@ -26,15 +26,16 @@ function getReportById(id) {
 }
 
 // List report summaries with their IDs for detail links, newest first.
-function listReports(keyword = '') {
+function listReports(keyword = '', location = '') {
   // instr treats %, _ and quotes as literal text. Empty text matches all rows.
   return db.prepare(`
     SELECT id, title, location, status FROM reports
-    WHERE instr(lower(title), lower(?)) > 0
-       OR instr(lower(description), lower(?)) > 0
+    WHERE (instr(lower(title), lower(?)) > 0
+       OR instr(lower(description), lower(?)) > 0)
+      AND (? = '' OR location = ?)
     ORDER BY id DESC
   `)
-    .all(keyword, keyword)
+    .all(keyword, keyword, location, location)
     .map(report => ({ ...report, reportNo: formatReportNo(report.id) }));
 }
 

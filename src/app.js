@@ -27,10 +27,13 @@ app.get('/', (req, res) => {
 
 app.get('/reports', (req, res) => {
   const keyword = typeof req.query.q === 'string' ? req.query.q.trim() : '';
+  const location = typeof req.query.location === 'string' ? req.query.location.trim() : '';
   res.render('reports/index', {
     title: '報修列表',
-    reports: listReports(keyword),
+    reports: listReports(keyword, location),
     keyword,
+    location,
+    locations: LOCATIONS,
   });
 });
 
