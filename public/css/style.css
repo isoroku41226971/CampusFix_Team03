@@ -183,6 +183,19 @@ a { color: var(--accent); }
   overflow-wrap: anywhere;
 }
 
+.staff-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+}
+.staff-actions h2 { margin: 0; font-size: 1.1rem; }
+.staff-actions form { margin: 0; }
+
 .site-footer {
   text-align: center;
   color: var(--muted);

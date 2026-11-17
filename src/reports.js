@@ -38,4 +38,41 @@ function listReports(keyword = '') {
     .map(report => ({ ...report, reportNo: formatReportNo(report.id) }));
 }
 
-module.exports = { formatReportNo, createReport, getReportById, listReports };
+// Turn a URL id ("12") into a positive integer, or undefined if it is not one.
+function parseReportId(value) {
+  const id = Number(value);
+  return /^[1-9]\d*$/.test(String(value)) && Number.isSafeInteger(id) ? id : undefined;
+}
+
+// Status changes staff may make (WD-24). S6 / WD-26 adds "In Progress" -> "Resolved"
+// together with the required resolution note.
+const ALLOWED_TRANSITIONS = {
+  Submitted: ['In Progress'],
+  'In Progress': [],
+  Resolved: [],
+};
+
+function canChangeStatus(from, to) {
+  return (ALLOWED_TRANSITIONS[from] || []).includes(to);
+}
+
+// Change a report's status. Returns { report } on success, or { error } with
+// 'not-found' or 'invalid-transition'. Nothing is written when it fails.
+function updateReportStatus(id, nextStatus) {
+  const current = getReportById(id);
+  if (!current) return { error: 'not-found' };
+  if (!canChangeStatus(current.status, nextStatus)) return { error: 'invalid-transition', report: current };
+  db.prepare('UPDATE reports SET status = ? WHERE id = ?').run(nextStatus, id);
+  return { report: getReportById(id) };
+}
+
+module.exports = {
+  formatReportNo,
+  createReport,
+  getReportById,
+  listReports,
+  parseReportId,
+  ALLOWED_TRANSITIONS,
+  canChangeStatus,
+  updateReportStatus,
+};
