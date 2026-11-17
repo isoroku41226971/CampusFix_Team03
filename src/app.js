@@ -6,6 +6,7 @@ const { db } = require('./db');
 const { LOCATIONS, CATEGORIES } = require('./constants');
 const { createReport, getReportById, listReports } = require('./reports');
 const { validateReport } = require('./validation');
+const { router: authRouter, loadUser, requireStaff } = require('./auth');
 
 const app = express();
 
@@ -14,6 +15,11 @@ app.set('views', path.join(__dirname, '..', 'views'));
 
 app.use(express.urlencoded({ extended: false }));
 app.use(express.static(path.join(__dirname, '..', 'public')));
+
+// Login state (WD-20): sets req.user and the `currentUser` template variable on
+// every request, then adds GET /login, POST /login and POST /logout.
+app.use(loadUser);
+app.use(authRouter);
 
 app.get('/', (req, res) => {
   res.render('index', { title: 'CampusFix' });
@@ -87,7 +93,11 @@ app.get('/reports/:id', (req, res) => {
   res.render('reports/detail', { title: '報修詳情', report });
 });
 
-// Staff handling pages and status changes (WD-24). WD-21 adds the staff-only check here.
+// Staff-only check (WD-21). It covers everything under /staff, so routers mounted
+// on /staff below this line are protected without repeating the check.
+app.use('/staff', requireStaff);
+
+// Staff overview (WD-22), handling pages and status changes (WD-24).
 app.use('/staff', require('./staff'));
 
 // Quick check that the server and database are up.

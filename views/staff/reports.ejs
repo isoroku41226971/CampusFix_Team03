@@ -1,0 +1,43 @@
+<%- include('../partials/header') %>
+
+<h1>管理總覽</h1>
+
+<ul class="status-counts" aria-label="各狀態筆數">
+  <li>全部 <strong><%= reports.length %></strong> 筆</li>
+  <% for (const item of statusCounts) { %>
+    <li><span class="status status-<%= item.status.toLowerCase().replace(' ', '-') %>"><%= item.status %></span> <strong><%= item.count %></strong> 筆</li>
+  <% } %>
+</ul>
+
+<% if (reports.length === 0) { %>
+  <p class="notice">目前沒有報修紀錄。</p>
+<% } else { %>
+  <div class="report-table-wrapper" role="region" aria-label="報修總覽" tabindex="0">
+    <table class="report-table">
+      <thead>
+        <tr>
+          <th scope="col">報修編號</th>
+          <th scope="col">標題</th>
+          <th scope="col">地點</th>
+          <th scope="col">類別</th>
+          <th scope="col">目前狀態</th>
+          <th scope="col">送出時間</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% for (const report of reports) { %>
+          <tr>
+            <th scope="row"><a href="/staff/reports/<%= report.id %>"><%= report.reportNo %></a></th>
+            <td><%= report.title %></td>
+            <td><%= report.location %></td>
+            <td><%= report.category %></td>
+            <td><span class="status status-<%= report.status.toLowerCase().replace(' ', '-') %>"><%= report.status %></span></td>
+            <td><%= report.created_at %></td>
+          </tr>
+        <% } %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<%- include('../partials/footer') %>

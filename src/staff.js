@@ -1,10 +1,12 @@
-// Staff routes, mounted at /staff (WD-24).
+// Staff routes, mounted at /staff (WD-22 overview, WD-24 handling page).
 // Every route that lets staff view or change reports belongs in this router, so the
-// staff-only check from WD-21 (T11) can protect all of them with one line in app.js:
-//   app.use('/staff', requireStaff, staffRouter);
+// staff-only check from WD-21 (T11) protects all of them with one line in app.js:
+//   app.use('/staff', requireStaff);
 const express = require('express');
+const { STATUSES } = require('./db');
 const {
   getReportById,
+  listReportsForStaff,
   parseReportId,
   ALLOWED_TRANSITIONS,
   updateReportStatus,
@@ -26,6 +28,16 @@ function renderReport(res, report, extra = {}) {
 function notFound(res) {
   res.status(404).render('reports/not-found', { title: '查無此報修' });
 }
+
+// Overview of all reports (WD-22): newest first, with the number of reports per status.
+router.get('/reports', (req, res) => {
+  const reports = listReportsForStaff();
+  const statusCounts = STATUSES.map(status => ({
+    status,
+    count: reports.filter(report => report.status === status).length,
+  }));
+  res.render('staff/reports', { title: '管理總覽', reports, statusCounts });
+});
 
 // Single report handling page: current details, status and the allowed status changes.
 router.get('/reports/:id', (req, res) => {
