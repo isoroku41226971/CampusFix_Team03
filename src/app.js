@@ -82,6 +82,9 @@ app.get('/reports/:id', (req, res) => {
   res.render('reports/detail', { title: '報修詳情', report });
 });
 
+// Staff handling pages and status changes (WD-24). WD-21 adds the staff-only check here.
+app.use('/staff', require('./staff'));
+
 // Quick check that the server and database are up.
 app.get('/health', (req, res) => {
   const { count } = db.prepare('SELECT COUNT(*) AS count FROM reports').get();
