@@ -17,6 +17,9 @@
   <dt>描述</dt><dd class="multiline"><%= report.description %></dd>
   <dt>送出時間</dt><dd><%= report.created_at %></dd>
   <dt>目前狀態</dt><dd><span class="status status-<%= report.status.toLowerCase().replace(' ', '-') %>"><%= report.status %></span></dd>
+  <% if (report.status === 'Resolved') { %>
+    <dt>處理說明</dt><dd class="multiline"><%= report.resolution_note || '尚未提供處理說明' %></dd>
+  <% } %>
 </dl>
 
 <section class="staff-actions" aria-labelledby="actions-title">
@@ -25,9 +28,21 @@
     <p class="lead">目前狀態沒有可以進行的變更。</p>
   <% } %>
   <% nextStatuses.forEach(function (status) { %>
-    <form method="post" action="/staff/reports/<%= report.id %>/status">
+    <form method="post" action="/staff/reports/<%= report.id %>/status" novalidate>
       <input type="hidden" name="status" value="<%= status %>">
-      <button type="submit" class="btn">改為 <%= status %></button>
+      <% if (status === 'Resolved') { %>
+        <%# Resolving needs a resolution note (WD-26); students see it on the detail page. %>
+        <div class="field">
+          <label for="resolution_note">處理說明</label>
+          <textarea id="resolution_note" name="resolution_note" rows="4" maxlength="<%= maxNote %>" required
+                    placeholder="請寫下處理結果，例如：已更換燈泡"
+                    aria-describedby="resolution_note-error" <%= noteError ? 'aria-invalid=true' : '' %>><%= noteValue %></textarea>
+          <p class="field-error" id="resolution_note-error" <%= noteError ? '' : 'hidden' %>><%= noteError || '' %></p>
+        </div>
+        <button type="submit" class="btn">結案（改為 Resolved）</button>
+      <% } else { %>
+        <button type="submit" class="btn">改為 <%= status %></button>
+      <% } %>
     </form>
   <% }) %>
 </section>

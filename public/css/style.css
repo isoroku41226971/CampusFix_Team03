@@ -214,7 +214,8 @@ a { color: var(--accent); }
   margin-bottom: 20px;
 }
 .staff-actions h2 { margin: 0; font-size: 1.1rem; }
-.staff-actions form { margin: 0; }
+.staff-actions form { margin: 0; display: flex; flex-direction: column; align-items: flex-start; gap: 12px; }
+.staff-actions .field { width: 100%; max-width: 560px; }
 
 .site-footer {
   text-align: center;
