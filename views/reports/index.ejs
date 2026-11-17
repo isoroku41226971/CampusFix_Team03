@@ -2,8 +2,21 @@
 
 <h1>報修列表</h1>
 
+<form class="report-search" action="/reports" method="get" role="search">
+  <div class="field">
+    <label for="keyword">關鍵字搜尋</label>
+    <input type="search" id="keyword" name="q" value="<%= keyword %>"
+           aria-describedby="search-help" placeholder="例如：wifi、投影機">
+    <p id="search-help" class="lead">搜尋報修的標題與描述，不分大小寫。</p>
+  </div>
+  <div class="search-actions">
+    <button class="btn" type="submit">搜尋</button>
+    <% if (keyword) { %><a href="/reports">清除搜尋</a><% } %>
+  </div>
+</form>
+
 <% if (reports.length === 0) { %>
-  <p class="notice">目前沒有報修紀錄。</p>
+  <p class="notice"><%= keyword ? '查無符合的報修' : '目前沒有報修紀錄。' %></p>
 <% } else { %>
   <div class="report-table-wrapper" role="region" aria-label="報修列表" tabindex="0">
     <table class="report-table">
