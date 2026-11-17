@@ -37,7 +37,27 @@ a { color: var(--accent); }
   color: var(--fg);
 }
 
-.site-header nav { display: flex; gap: 16px; }
+.site-header nav { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 16px; }
+.nav-user { color: var(--muted); }
+.nav-logout { margin: 0; }
+.nav-logout button {
+  padding: 0;
+  border: none;
+  background: none;
+  color: var(--accent);
+  font: inherit;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.status-counts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 24px;
+  list-style: none;
+  padding: 0;
+  margin: 0 0 20px;
+}
 
 .container {
   max-width: 880px;

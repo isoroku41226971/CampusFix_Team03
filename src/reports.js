@@ -32,6 +32,14 @@ function listReports() {
     .map(report => ({ ...report, reportNo: formatReportNo(report.id) }));
 }
 
+// List every report with the extra columns of the staff overview (WD-22), newest first.
+function listReportsForStaff() {
+  return db
+    .prepare('SELECT id, title, location, category, status, created_at FROM reports ORDER BY id DESC')
+    .all()
+    .map(report => ({ ...report, reportNo: formatReportNo(report.id) }));
+}
+
 // Turn a URL id ("12") into a positive integer, or undefined if it is not one.
 function parseReportId(value) {
   const id = Number(value);
@@ -65,6 +73,7 @@ module.exports = {
   createReport,
   getReportById,
   listReports,
+  listReportsForStaff,
   parseReportId,
   ALLOWED_TRANSITIONS,
   canChangeStatus,

@@ -1,0 +1,25 @@
+<%- include('partials/header') %>
+
+<h1>登入</h1>
+<p class="lead">管理人員登入後可以查看報修總覽。學生送出和查詢報修不需要登入。</p>
+
+<% if (error) { %>
+  <div class="notice notice-error" role="alert"><%= error %></div>
+<% } %>
+
+<form class="report-form" method="post" action="/login">
+  <input type="hidden" name="next" value="<%= next %>">
+  <div class="field">
+    <label for="username">帳號</label>
+    <input type="text" id="username" name="username" value="<%= username %>" autocomplete="username" autofocus>
+  </div>
+  <div class="field">
+    <label for="password">密碼</label>
+    <input type="password" id="password" name="password" autocomplete="current-password">
+  </div>
+  <div>
+    <button type="submit" class="btn">登入</button>
+  </div>
+</form>
+
+<%- include('partials/footer') %>

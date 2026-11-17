@@ -49,6 +49,8 @@ src/
   server.js   starts the HTTP server
   app.js      Express setup and routes
   db.js       SQLite connection and schema (reports table)
+  auth.js     demo accounts, login/logout and the staff-only check
+  staff.js    staff routes under /staff (overview and handling page)
 views/        EJS pages (partials/ holds the shared header and footer)
 public/       static files (css/)
 docs/         working agreement and Definition of Done
@@ -56,7 +58,15 @@ docs/         working agreement and Definition of Done
 
 ## Demo accounts
 
-_To be added. Fictional demonstration accounts only — no real passwords._
+Fictional demonstration accounts only — no real passwords. Log in at http://localhost:3000/login.
+
+| Role | Username | Password | Can open |
+| --- | --- | --- | --- |
+| Staff (管理人員) | `staff01` | `staff-demo` | Everything, including the staff overview at `/staff/reports` |
+| Student (學生) | `student01` | `student-demo` | Student pages only; `/staff` pages answer 403 |
+
+- Submitting and viewing reports does not require a login.
+- Login sessions are kept in memory, so everyone has to log in again after the server restarts.
 
 ## Conventions
 
