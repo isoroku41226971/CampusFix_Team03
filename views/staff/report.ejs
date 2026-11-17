@@ -1,0 +1,37 @@
+<%- include('../partials/header') %>
+
+<h1>處理報修</h1>
+<p class="report-no"><%= report.reportNo %></p>
+
+<% if (message) { %>
+  <div class="notice notice-success" role="status"><%= message %></div>
+<% } %>
+<% if (error) { %>
+  <div class="notice notice-error" role="alert"><%= error %></div>
+<% } %>
+
+<dl class="report-summary">
+  <dt>標題</dt><dd><%= report.title %></dd>
+  <dt>地點</dt><dd><%= report.location %></dd>
+  <dt>類別</dt><dd><%= report.category %></dd>
+  <dt>描述</dt><dd class="multiline"><%= report.description %></dd>
+  <dt>送出時間</dt><dd><%= report.created_at %></dd>
+  <dt>目前狀態</dt><dd><span class="status status-<%= report.status.toLowerCase().replace(' ', '-') %>"><%= report.status %></span></dd>
+</dl>
+
+<section class="staff-actions" aria-labelledby="actions-title">
+  <h2 id="actions-title">變更狀態</h2>
+  <% if (nextStatuses.length === 0) { %>
+    <p class="lead">目前狀態沒有可以進行的變更。</p>
+  <% } %>
+  <% nextStatuses.forEach(function (status) { %>
+    <form method="post" action="/staff/reports/<%= report.id %>/status">
+      <input type="hidden" name="status" value="<%= status %>">
+      <button type="submit" class="btn">改為 <%= status %></button>
+    </form>
+  <% }) %>
+</section>
+
+<p><a href="/reports/<%= report.id %>">查看學生看到的詳情頁</a></p>
+
+<%- include('../partials/footer') %>
