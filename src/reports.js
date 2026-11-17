@@ -52,25 +52,39 @@ function parseReportId(value) {
   return /^[1-9]\d*$/.test(String(value)) && Number.isSafeInteger(id) ? id : undefined;
 }
 
-// Status changes staff may make (WD-24). S6 / WD-26 adds "In Progress" -> "Resolved"
-// together with the required resolution note.
+// Status changes staff may make: Submitted -> In Progress (WD-24) and
+// In Progress -> Resolved (WD-26). Resolved is final.
 const ALLOWED_TRANSITIONS = {
   Submitted: ['In Progress'],
-  'In Progress': [],
+  'In Progress': ['Resolved'],
   Resolved: [],
 };
+
+const MAX_RESOLUTION_NOTE = 1000;
 
 function canChangeStatus(from, to) {
   return (ALLOWED_TRANSITIONS[from] || []).includes(to);
 }
 
-// Change a report's status. Returns { report } on success, or { error } with
-// 'not-found' or 'invalid-transition'. Nothing is written when it fails.
-function updateReportStatus(id, nextStatus) {
+// Change a report's status. Resolving a report (WD-26) also needs a resolution
+// note, which is saved together with the new status.
+// Returns { report } on success, or { error } with 'not-found', 'invalid-transition',
+// 'note-required' or 'note-too-long'. Nothing is written when it fails.
+function updateReportStatus(id, nextStatus, resolutionNote = '') {
   const current = getReportById(id);
   if (!current) return { error: 'not-found' };
   if (!canChangeStatus(current.status, nextStatus)) return { error: 'invalid-transition', report: current };
-  db.prepare('UPDATE reports SET status = ? WHERE id = ?').run(nextStatus, id);
+  if (nextStatus !== 'Resolved') {
+    db.prepare('UPDATE reports SET status = ? WHERE id = ?').run(nextStatus, id);
+    return { report: getReportById(id) };
+  }
+  // Browsers send line breaks as CRLF; store LF so a line break counts as one character.
+  const note = String(resolutionNote).replace(/\r\n/g, '\n').trim();
+  if (!note) return { error: 'note-required', report: current };
+  if (note.length > MAX_RESOLUTION_NOTE) return { error: 'note-too-long', report: current };
+  // The status check in WHERE keeps a second, late request from overwriting the note.
+  db.prepare('UPDATE reports SET status = ?, resolution_note = ? WHERE id = ? AND status = ?')
+    .run(nextStatus, note, id, current.status);
   return { report: getReportById(id) };
 }
 
@@ -82,6 +96,7 @@ module.exports = {
   listReportsForStaff,
   parseReportId,
   ALLOWED_TRANSITIONS,
+  MAX_RESOLUTION_NOTE,
   canChangeStatus,
   updateReportStatus,
 };
